@@ -8,7 +8,9 @@ from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from sqlalchemy import select
+from sqlalchemy import func
 
+pwd = input("password: ")
 engine = create_engine(f"postgresql+psycopg2://postgres:{pwd}@localhost/Test")
 
 class Base(DeclarativeBase):
@@ -95,8 +97,8 @@ with Session(engine) as session:
 
 session = Session(engine)  
 
-#Select specialist who work for a manager that works is classroom tech department and earn more than 50000
-stmt = select(Specialist).where(Manager.managedDName == "Classroom Tech", Manager.managerID == Specialist.managerID,
+#Select count of specialists who work for a manager that works in classroom tech department and earn more than 50000
+stmt = select(func.count(Specialist.specialistID)).where(Manager.managedDName == "Classroom Tech", Manager.managerID == Specialist.managerID,
                                 Specialist.specialistSalary >50000)
 for Specialist in session.scalars(stmt): #Execute stmt and return the results as scalars
     print(Specialist)
