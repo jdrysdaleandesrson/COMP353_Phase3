@@ -10,7 +10,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select
 from sqlalchemy import func
 
-pwd = "flaunited"
+pwd = input("password: ")
 engine = create_engine(f"postgresql+psycopg2://postgres:{pwd}@localhost/Test")
 
 class Base(DeclarativeBase):
@@ -61,6 +61,35 @@ class Department(Base):
     managerID: Mapped[int] = mapped_column(ForeignKey("IT_manager.managerID"))
     manager: Mapped["Manager"] = relationship(back_populates="department")
 
+class StudentEmp(Base):
+    __tablename__ = "studentEmp"
+
+    studentID: Mapped[str] = mapped_column(primary_key=True)
+    studentFName: Mapped[str] = mapped_column(String(50))
+    studentLName: Mapped[str] = mapped_column(String(50))
+    studentSalary: Mapped[int] = mapped_column()
+    processorIssues: Mapped[List["ProcessorIssue"]] = relationship(back_populates="student", cascade="all, delete-orphan")
+
+    def __repr__(self) -> str:
+        return f"studentID={self.studentID!r}, studentFName={self.studentFName!r}, studentLName={self.studentLName!r}," \
+               f"studentSalary={self.studentSalary!r}"
+
+class ProcessorIssue(Base):
+    __tablename__ = "processorIssue"
+
+    caseNum: Mapped[int] = mapped_column(primary_key=True)
+    diagnosisDate: Mapped[str] = mapped_column(String(10))
+    buildingName: Mapped[str] = mapped_column(String(50))
+    partName: Mapped[str] = mapped_column(String(50))
+
+    student_id: Mapped[str] = mapped_column(ForeignKey("studentEmp.studentID"))
+
+    student: Mapped["StudentEmp"] = relationship(back_populates="processorIssues")
+
+    def __repr__(self) -> str: #represents the object as a string
+        return f"ProcessorIssue(caseNum = {self.caseNum!r}, diagnosisDate = {self.diagnosisDate!r}," \
+               f"buildingName = {self.buildingName!r}, partName = {self.partName!r})"
+
     
 # Drop existing tables
 Base.metadata.drop_all(engine)
@@ -92,7 +121,34 @@ with Session(engine) as session:
     )
     Classroom_Tech = Department(departmentName='Classroom Tech')
     Desktop_Services=Department(departmentName='Desktop Services')
-    session.add_all([Marquinhos,Raphinha])
+
+    Cindy = StudentEmp(
+        studentID='00007810224',
+        studentFName='Cindy',
+        studentLName='George',
+        studentSalary='5000',
+        # Cindy casNums = 1, 8, 9, 11
+        processorIssues=[ProcessorIssue(caseNum='1', diagnosisDate='01/05/2023', buildingName='Cudahy Science Hall',
+                                       partName='HDMI Couplers'),
+                        ProcessorIssue(caseNum='8', diagnosisDate='03/19/2023', buildingName='Edward Crown Center',
+                                       partName='Audio Extractor'),
+                        ProcessorIssue(caseNum='9', diagnosisDate='03/22/2023', buildingName='Cudahy Science Hall',
+                                       partName='HDMI Couplers'),
+                        ProcessorIssue(caseNum='11', diagnosisDate='04/01/2023', buildingName='Edward Crown Center',
+                                       partName='Touch Panel')]
+    )
+    Barbara = StudentEmp(
+        studentID='00005637594',
+        studentFName='Barbara',
+        studentLName='Wallace',
+        studentSalary='5000',
+        # Barbara casNums = 2, 7
+        processorIssues=[ProcessorIssue(caseNum='2', diagnosisDate='01/09/2023', buildingName='Dumbach Hall',
+                                        partName='Shure Microphone Transmitter'),
+                         ProcessorIssue(caseNum='7', diagnosisDate='02/21/2023', buildingName='Edward Crown Center',
+                                        partName='VGA Couplers')]
+    )
+    session.add_all([Marquinhos,Raphinha,Cindy,Barbara])
     session.commit()
 
 session = Session(engine)  
@@ -102,3 +158,13 @@ specilistSalUnderManager = select(func.count(Specialist.specialistID)).where(Man
                                 Specialist.specialistSalary >50000)
 for Specialist in session.scalars(specilistSalUnderManager): #Execute stmt and return the results as scalars
     print("specilistSalUnderManager: " + str(Specialist))
+
+session = Session(engine)
+stmt = select(StudentEmp.studentFName, StudentEmp.studentLName, func.count(ProcessorIssue.caseNum))\
+    .join(StudentEmp.processorIssues)\
+    .where(ProcessorIssue.buildingName == 'Edward Crown Center')\
+    .group_by(StudentEmp.studentID)\
+    .order_by(func.count(ProcessorIssue.caseNum).desc())
+#print(stmt)
+for student in session.execute(stmt):
+    print(student)
