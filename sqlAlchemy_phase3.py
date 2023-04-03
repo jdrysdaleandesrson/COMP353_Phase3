@@ -97,7 +97,7 @@ with Session(engine) as session:
 
 session = Session(engine)  
 
-#Select count of specialists who work for a manager that works in classroom tech department and earn more than 50000
+#specilistSalUnderManager
 specilistSalUnderManager = select(func.count(Specialist.specialistID)).where(Manager.managedDName == "Classroom Tech", Manager.managerID == Specialist.managerID,
                                 Specialist.specialistSalary >50000)
 for Specialist in session.scalars(specilistSalUnderManager): #Execute stmt and return the results as scalars
