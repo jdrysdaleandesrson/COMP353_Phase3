@@ -148,7 +148,7 @@ with Session(engine) as session:
                          ProcessorIssue(caseNum='7', diagnosisDate='02/21/2023', buildingName='Edward Crown Center',
                                         partName='VGA Couplers')]
     )
-    session.add_all([Marquinhos,Raphinha,Cindy,Barbara])
+    session.add_all([Marquinhos,Raphinha,Cindy,Barbara,Classroom_Tech, Desktop_Services])
     session.commit()
 
 session = Session(engine)  
@@ -156,7 +156,7 @@ session = Session(engine)
 #specilistSalUnderManager
 specilistSalUnderManager = select(func.count(Specialist.specialistID)).where(Manager.managedDName == "Classroom Tech", Manager.managerID == Specialist.managerID,
                                 Specialist.specialistSalary >50000)
-for Specialist in session.scalars(specilistSalUnderManager): #Execute stmt and return the results as scalars
+for Specialist in session.scalars(specilistSalUnderManager): 
     print("specilistSalUnderManager: " + str(Specialist))
 
 session = Session(engine)
