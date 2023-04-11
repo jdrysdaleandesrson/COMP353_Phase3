@@ -54,13 +54,13 @@ class Specialist(Base):
     specialistSalary={self.specialistSalary!r})"""
 
 
-class Department(Base):
+"""class Department(Base):
     __tablename__ = "IT_department"
 
     departmentName: Mapped[int] = mapped_column(primary_key=True)
 
     managerID: Mapped[int] = mapped_column(ForeignKey("IT_manager.managerID"))
-    manager: Mapped["Manager"] = relationship(back_populates="department")
+    manager: Mapped["Manager"] = relationship(back_populates="department")"""
 
 
 class StudentEmp(Base):
@@ -129,9 +129,9 @@ with Session(engine) as session:
                      Specialist(specialistID='00006969520', specialistFName='Lucas', specialistLName='Paqueta',
                                 specialistSalary='100000')],
     )
-    # Departments 
-    Classroom_Tech = Department(departmentName='Classroom Tech')
-    Desktop_Services = Department(departmentName='Desktop Services')
+    
+    """Classroom_Tech = Department(departmentName='Classroom Tech')
+    Desktop_Services = Department(departmentName='Desktop Services')"""
 
     Cindy = StudentEmp(
         studentID='00007810224',
