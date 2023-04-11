@@ -30,7 +30,7 @@ class Manager(Base):
     specialists: Mapped[List["Specialist"]] = relationship(
         back_populates="manager", cascade="all, delete-orphan"
     )
-    #department: Mapped["Department"] = relationship(back_populates="manager")
+    department: Mapped["Department"] = relationship(back_populates="manager")
 
     def __repr__(self) -> str:  # represents the object as a string
         return f"""Manager(managerID={self.managerID!r}, managerFName={self.managerFName!r}, managerLName={self.managerLName!r}, 
@@ -54,13 +54,13 @@ class Specialist(Base):
     specialistSalary={self.specialistSalary!r})"""
 
 
-"""class Department(Base):
+class Department(Base):
     __tablename__ = "IT_department"
 
-    departmentName: Mapped[int] = mapped_column(primary_key=True)
+    departmentName: Mapped[str] = mapped_column(primary_key=True)
 
     managerID: Mapped[int] = mapped_column(ForeignKey("IT_manager.managerID"))
-    manager: Mapped["Manager"] = relationship(back_populates="department")"""
+    manager: Mapped["Manager"] = relationship(back_populates="department")
 
 
 class StudentEmp(Base):
@@ -130,8 +130,8 @@ with Session(engine) as session:
                                 specialistSalary='100000')],
     )
     
-    """Classroom_Tech = Department(departmentName='Classroom Tech')
-    Desktop_Services = Department(departmentName='Desktop Services')"""
+    Classroom_Tech = Department(departmentName='Classroom Tech',managerID='00008554676')
+    Desktop_Services = Department(departmentName='Desktop Services',managerID='00003489894')
 
     Cindy = StudentEmp(
         studentID='00007810224',
@@ -159,7 +159,7 @@ with Session(engine) as session:
                          ProcessorIssue(caseNum='7', diagnosisDate='02/21/2023', buildingName='Edward Crown Center',
                                         partName='VGA Couplers')]
     )
-    session.add_all([Marquinhos, Raphinha, Cindy, Barbara])
+    session.add_all([Marquinhos, Raphinha, Cindy, Barbara, Classroom_Tech, Desktop_Services])
     session.commit()
 
 session = Session(engine)
