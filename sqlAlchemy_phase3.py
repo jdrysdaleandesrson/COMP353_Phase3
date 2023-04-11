@@ -30,7 +30,7 @@ class Manager(Base):
     specialists: Mapped[List["Specialist"]] = relationship(
         back_populates="manager", cascade="all, delete-orphan"
     )
-    department: Mapped["Department"] = relationship(back_populates="manager")
+    #department: Mapped["Department"] = relationship(back_populates="manager")
 
     def __repr__(self) -> str:  # represents the object as a string
         return f"""Manager(managerID={self.managerID!r}, managerFName={self.managerFName!r}, managerLName={self.managerLName!r}, 
