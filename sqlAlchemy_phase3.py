@@ -129,7 +129,7 @@ with Session(engine) as session:
                      Specialist(specialistID='00006969520', specialistFName='Lucas', specialistLName='Paqueta',
                                 specialistSalary='100000')],
     )
-    # Department
+    # Departments 
     Classroom_Tech = Department(departmentName='Classroom Tech')
     Desktop_Services = Department(departmentName='Desktop Services')
 
