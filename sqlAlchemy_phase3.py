@@ -61,6 +61,9 @@ class Department(Base):
 
     managerID: Mapped[int] = mapped_column(ForeignKey("IT_manager.managerID"))
     manager: Mapped["Manager"] = relationship(back_populates="department")
+    
+    def __repr__(self) -> str:  # represents the object as a string
+        return f"""Department(departmentName={self.departmentName!r}, managerID={self.managerID!r})"""
 
 
 class StudentEmp(Base):
