@@ -150,7 +150,7 @@ with Session(engine) as session:
                          ProcessorIssue(caseNum='9', diagnosisDate='03/22/2023', buildingName='Cudahy Science Hall',
                                         partName='HDMI Couplers'),
                          ProcessorIssue(caseNum='11', diagnosisDate='04/01/2023', buildingName='Edward Crown Center',
-                                        partName='Touch Panel')]
+                                        partName='VGA Couplers')]
     )
     Barbara = StudentEmp(
         studentID='00005637594',
