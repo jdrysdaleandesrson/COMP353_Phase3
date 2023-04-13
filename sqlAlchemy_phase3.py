@@ -9,6 +9,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 from sqlalchemy import func
+from sqlalchemy import or_
 
 pwd = input("password: ")
 engine = create_engine(f"postgresql+psycopg2://postgres:{pwd}@localhost/Test")
@@ -174,12 +175,12 @@ specilistSalUnderManager = select(func.count(Specialist.specialistID)).where(Man
 for Specialist in session.scalars(specilistSalUnderManager):
     print("specilistSalUnderManager: " + str(Specialist))
 
-session = Session(engine)
-stmt = select(StudentEmp.studentFName, StudentEmp.studentLName, func.count(ProcessorIssue.caseNum)) \
-    .join(StudentEmp.processorIssues) \
-    .where(ProcessorIssue.buildingName == 'Edward Crown Center') \
-    .group_by(StudentEmp.studentID) \
-    .order_by(func.count(ProcessorIssue.caseNum).desc())
-# print(stmt)
+# studentDiagnosesByPart
+stmt = select(StudentEmp.studentFName, StudentEmp.studentLName, ProcessorIssue.partName, func.count(ProcessorIssue.caseNum))\
+    .join(StudentEmp.processorIssues)\
+    .where(or_(ProcessorIssue.partName == 'HDMI Couplers', ProcessorIssue.partName == 'VGA Couplers'))\
+    .group_by(StudentEmp.studentID, ProcessorIssue.partName)\
+    .order_by(func.count(ProcessorIssue.caseNum).desc(), StudentEmp.studentLName)
+print("\n" + "### studentDiagnosesByPart ###")
 for student in session.execute(stmt):
     print(student)
