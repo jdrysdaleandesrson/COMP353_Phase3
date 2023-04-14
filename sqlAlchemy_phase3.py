@@ -99,6 +99,31 @@ class ProcessorIssue(Base):
                f"buildingName = {self.buildingName!r}, partName = {self.partName!r})"
 
 
+class Professor(Base):
+    __tablename__ = "professor"
+
+    professorID: Mapped[str] = mapped_column(primary_key=True)
+    professorFName: Mapped[str] = mapped_column(String(50))
+    professorLName: Mapped[str] = mapped_column(String(50))
+    professorSalary: Mapped[int] = mapped_column()
+    reports: Mapped[List["Report"]] = relationship(back_populates="professorRef", cascade="all, delete-orphan")
+
+    def __repr__(self) -> str:
+        return f"Professor(professorID = {self.professorID!r}, professorFName = {self.professorFName!r}," \
+               f"professorLName = {self.professorLName!r}, professorSalary = {self.professorSalary!r})"
+
+
+class Report(Base):
+    __tablename__ = "report"
+
+    caseNum: Mapped[int] = mapped_column(primary_key=True)
+    professor_id: Mapped[str] = mapped_column(ForeignKey("professor.professorID"))
+    professorRef: Mapped["Professor"] = relationship(back_populates="reports")
+
+    def __repr__(self) -> str:
+        return f"Report(caseNum = {self.caseNum!r})"
+
+
 # Drop existing tables
 Base.metadata.drop_all(engine)
 
@@ -163,7 +188,23 @@ with Session(engine) as session:
                          ProcessorIssue(caseNum='7', diagnosisDate='02/21/2023', buildingName='Edward Crown Center',
                                         partName='VGA Couplers')]
     )
-    session.add_all([Marquinhos, Raphinha, Cindy, Barbara, Classroom_Tech, Desktop_Services])
+
+    Devin = Professor(
+        professorID='00005049786',
+        professorFName='Devin',
+        professorLName='Copeland',
+        professorSalary='60000',
+        reports=[Report(caseNum='1'), Report(caseNum='8')]
+    )
+    Francis = Professor(
+        professorID='00001135183',
+        professorFName='Francis',
+        professorLName='Mendoza',
+        professorSalary='88000',
+        reports=[Report(caseNum='6'), Report(caseNum='9'), Report(caseNum='11')]
+    )
+
+    session.add_all([Marquinhos, Raphinha, Cindy, Barbara, Classroom_Tech, Desktop_Services, Devin, Francis])
     session.commit()
 
 session = Session(engine)
@@ -178,9 +219,11 @@ for Specialist in session.scalars(specilistSalUnderManager):
 # studentDiagnosesByPart
 stmt = select(StudentEmp.studentFName, StudentEmp.studentLName, ProcessorIssue.partName, func.count(ProcessorIssue.caseNum))\
     .join(StudentEmp.processorIssues)\
-    .where(or_(ProcessorIssue.partName == 'HDMI Couplers', ProcessorIssue.partName == 'VGA Couplers'))\
+    .join(Professor.reports)\
+    .where(Report.caseNum == ProcessorIssue.caseNum, Professor.professorID == '00001135183')\
     .group_by(StudentEmp.studentID, ProcessorIssue.partName)\
     .order_by(func.count(ProcessorIssue.caseNum).desc(), StudentEmp.studentLName)
+
 print("\n" + "### studentDiagnosesByPart ###")
 for student in session.execute(stmt):
     print(student)
