@@ -9,7 +9,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 from sqlalchemy import func
-from sqlalchemy import or_
+from sqlalchemy import distinct
 
 pwd = input("password: ")
 engine = create_engine(f"postgresql+psycopg2://postgres:{pwd}@localhost/Test")
@@ -153,13 +153,13 @@ with Session(engine) as session:
         managerLName='Correa',
         managerSalary='155000',
         managedDName='Classroom Tech',
-        specialists=[Specialist(managerID='00001387051', specialistFName='Roberto', specialistLName='Carlos',
+        specialists=[Specialist(specialistID='00001387051', specialistFName='Roberto', specialistLName='Carlos',
                                 specialistSalary='43000'),
-                     Specialist(managerID='00002312829', specialistFName='Juan', specialistLName='Felix',
+                     Specialist(specialistID='00002312829', specialistFName='Juan', specialistLName='Felix',
                                 specialistSalary='83000'),
-                     Specialist(managerID='00006106639', specialistFName='Vinicius', specialistLName='Oliveira',
+                     Specialist(specialistID='00006106639', specialistFName='Vinicius', specialistLName='Oliveira',
                                 specialistSalary='48000'),
-                     Specialist(managerID='00008518764', specialistFName='Thiago', specialistLName='Silva',
+                     Specialist(specialistID='00008518764', specialistFName='Thiago', specialistLName='Silva',
                                 specialistSalary='77000')],
     )
     Raphinha = Manager(
@@ -211,7 +211,7 @@ with Session(engine) as session:
     Roberto = StudentEmp(
         studentID='00002328669',
         studentFName='Roberto',
-        studentLName='Firmio',
+        studentLName='Firmino',
         studentSalary='5000',
         processorIssues=[ProcessorIssue(caseNum='3', diagnosisDate='01/09/2023', buildingName='Dumbach Hall',
                                         partName='Audio Extractor', classNum='303'),
@@ -253,12 +253,18 @@ with Session(engine) as session:
 
 session = Session(engine)
 
-# specilistSalUnderManager
-specilistSalUnderManager = select(func.count(Specialist.specialistID)).where(Manager.managedDName == "Classroom Tech",
-                                                                             Manager.managerID == Specialist.managerID,
-                                                                             Specialist.specialistSalary > 50000)
+# specilistSalUnderManager    
+specilistSalUnderManager = select(func.count(Specialist.specialistFName)).where(
+    Specialist.managerID == Manager.managerID,
+    Manager.managedDName == Department.departmentName,
+    Manager.managerID == "00008554676",
+    Department.departmentName == "Classroom Tech",
+    Specialist.specialistSalary > 50000)
+
+print("\n" + "### specilistSalUnderManager ###")
 for Specialist in session.scalars(specilistSalUnderManager):
-    print("specilistSalUnderManager: " + str(Specialist))
+    print(str(Specialist))
+
 
 # studentDiagnosesByPart
 stmt = select(StudentEmp.studentFName, StudentEmp.studentLName, ProcessorIssue.partName, func.count(ProcessorIssue.caseNum))\
