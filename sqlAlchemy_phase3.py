@@ -120,7 +120,7 @@ class Professor(Base):
 class Report(Base):
     __tablename__ = "report"
 
-    caseNum: Mapped[int] = mapped_column(primary_key=True)
+    caseNum: Mapped[int] = mapped_column(ForeignKey("processorIssue.caseNum"), primary_key=True)
     professor_id: Mapped[str] = mapped_column(ForeignKey("professor.professorID"))
     professorRef: Mapped["Professor"] = relationship(back_populates="reports")
 
@@ -131,7 +131,7 @@ class Report(Base):
 class StudentWorksIn(Base):
     __tablename__ = "studentWorksIn"
 
-    studentID: Mapped[str] = mapped_column(primary_key=True)
+    studentID: Mapped[str] = mapped_column(ForeignKey("studentEmp.studentID"), primary_key=True)
     department_id: Mapped[str] = mapped_column(ForeignKey("IT_department.departmentName"))
     departmentRef: Mapped["Department"] = relationship(back_populates="stuDepts")
 
@@ -220,6 +220,18 @@ with Session(engine) as session:
                          ProcessorIssue(caseNum='6', diagnosisDate='02/03/2023', buildingName='Information Commons',
                                         partName='Touch Panel', classNum='321')]
     )
+    Harry = StudentEmp(
+        studentID='00007111521',
+        studentFName='Harry',
+        studentLName='Maguire',
+        studentSalary='2000',
+        processorIssues=[ProcessorIssue(caseNum='4', diagnosisDate='01/10/2023', buildingName='Cueno Hall',
+                                        partName='Touch Panel', classNum='100'),
+                         ProcessorIssue(caseNum='10', diagnosisDate='03/22/2023', buildingName='Edward Crown Center',
+                                        partName='Touch Panel', classNum='156'),
+                         ProcessorIssue(caseNum='12', diagnosisDate='04/10/2023', buildingName='Information Commons',
+                                        partName='Touch Panel', classNum='441')]
+    )
 
     Devin = Professor(
         professorID='00005049786',
@@ -236,7 +248,7 @@ with Session(engine) as session:
         reports=[Report(caseNum='6'), Report(caseNum='9'), Report(caseNum='11')]
     )
 
-    session.add_all([Marquinhos, Raphinha, Cindy, Barbara, Roberto, Classroom_Tech, Desktop_Services, Devin, Francis])
+    session.add_all([Marquinhos, Raphinha, Cindy, Barbara, Roberto, Classroom_Tech, Desktop_Services, Devin, Francis, Harry])
     session.commit()
 
 session = Session(engine)
