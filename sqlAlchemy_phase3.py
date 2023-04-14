@@ -253,8 +253,8 @@ stmt = select(StudentEmp.studentFName, StudentEmp.studentLName, ProcessorIssue.p
     .join(StudentEmp.processorIssues)\
     .join(Professor.reports)\
     .join(Department.stuDepts)\
-    .where(Report.caseNum == ProcessorIssue.caseNum, Professor.professorID == '00001135183',
-           StudentWorksIn.studentID == StudentEmp.studentID, Department.departmentName == 'Classroom Tech')\
+    .where(Report.caseNum == ProcessorIssue.caseNum, Report.professor_id == '00001135183',
+           StudentWorksIn.studentID == StudentEmp.studentID, StudentWorksIn.department_id == 'Classroom Tech')\
     .group_by(StudentEmp.studentID, ProcessorIssue.partName)\
     .order_by(func.count(ProcessorIssue.caseNum).desc(), StudentEmp.studentLName)
 
