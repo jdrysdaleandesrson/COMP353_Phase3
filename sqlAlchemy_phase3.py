@@ -9,7 +9,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 from sqlalchemy import func
-from sqlalchemy import distinct
 
 pwd = input("password: ")
 engine = create_engine(f"postgresql+psycopg2://postgres:{pwd}@localhost/Test")
