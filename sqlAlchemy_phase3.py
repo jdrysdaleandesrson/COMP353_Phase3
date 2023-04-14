@@ -63,6 +63,9 @@ class Department(Base):
     managerID: Mapped[int] = mapped_column(ForeignKey("IT_manager.managerID"))
     manager: Mapped["Manager"] = relationship(back_populates="department")
 
+    stuDepts: Mapped[List["StudentWorksIn"]] = relationship(back_populates="departmentRef",
+                                                            cascade="all, delete-orphan")
+
     def __repr__(self) -> str:  # represents the object as a string
         return f"""Department(departmentName={self.departmentName!r}, managerID={self.managerID!r})"""
 
@@ -89,6 +92,7 @@ class ProcessorIssue(Base):
     diagnosisDate: Mapped[str] = mapped_column(String(10))
     buildingName: Mapped[str] = mapped_column(String(50))
     partName: Mapped[str] = mapped_column(String(50))
+    classNum: Mapped[int] = mapped_column()
 
     student_id: Mapped[str] = mapped_column(ForeignKey("studentEmp.studentID"))
 
@@ -122,6 +126,17 @@ class Report(Base):
 
     def __repr__(self) -> str:
         return f"Report(caseNum = {self.caseNum!r})"
+
+
+class StudentWorksIn(Base):
+    __tablename__ = "studentWorksIn"
+
+    studentID: Mapped[str] = mapped_column(primary_key=True)
+    department_id: Mapped[str] = mapped_column(ForeignKey("IT_department.departmentName"))
+    departmentRef: Mapped["Department"] = relationship(back_populates="stuDepts")
+
+    def __repr__(self) -> str:
+        return f"StudentWorksIn(StudentID={self.studentID!r})"
 
 
 # Drop existing tables
@@ -159,8 +174,13 @@ with Session(engine) as session:
                                 specialistSalary='100000')],
     )
 
-    Classroom_Tech = Department(departmentName='Classroom Tech', managerID='00008554676')
-    Desktop_Services = Department(departmentName='Desktop Services', managerID='00003489894')
+    Classroom_Tech = Department(departmentName='Classroom Tech', managerID='00008554676',
+                                stuDepts=[StudentWorksIn(studentID='00007810224'),
+                                          StudentWorksIn(studentID='00005637594'),
+                                          StudentWorksIn(studentID='00002328669')]
+                                )
+    Desktop_Services = Department(departmentName='Desktop Services', managerID='00003489894',
+                                  stuDepts=[StudentWorksIn(studentID='00007111521')])
 
     Cindy = StudentEmp(
         studentID='00007810224',
@@ -169,13 +189,13 @@ with Session(engine) as session:
         studentSalary='5000',
         # Cindy casNums = 1, 8, 9, 11
         processorIssues=[ProcessorIssue(caseNum='1', diagnosisDate='01/05/2023', buildingName='Cudahy Science Hall',
-                                        partName='HDMI Couplers'),
+                                        partName='HDMI Couplers', classNum='108'),
                          ProcessorIssue(caseNum='8', diagnosisDate='03/19/2023', buildingName='Edward Crown Center',
-                                        partName='Audio Extractor'),
+                                        partName='Audio Extractor', classNum='210'),
                          ProcessorIssue(caseNum='9', diagnosisDate='03/22/2023', buildingName='Cudahy Science Hall',
-                                        partName='HDMI Couplers'),
+                                        partName='HDMI Couplers', classNum='202'),
                          ProcessorIssue(caseNum='11', diagnosisDate='04/01/2023', buildingName='Edward Crown Center',
-                                        partName='VGA Couplers')]
+                                        partName='VGA Couplers', classNum='122')]
     )
     Barbara = StudentEmp(
         studentID='00005637594',
@@ -184,9 +204,21 @@ with Session(engine) as session:
         studentSalary='5000',
         # Barbara casNums = 2, 7
         processorIssues=[ProcessorIssue(caseNum='2', diagnosisDate='01/09/2023', buildingName='Dumbach Hall',
-                                        partName='Shure Microphone Transmitter'),
+                                        partName='Shure Microphone Transmitter', classNum='213'),
                          ProcessorIssue(caseNum='7', diagnosisDate='02/21/2023', buildingName='Edward Crown Center',
-                                        partName='VGA Couplers')]
+                                        partName='VGA Couplers', classNum='140')]
+    )
+    Roberto = StudentEmp(
+        studentID='00002328669',
+        studentFName='Roberto',
+        studentLName='Firmio',
+        studentSalary='5000',
+        processorIssues=[ProcessorIssue(caseNum='3', diagnosisDate='01/09/2023', buildingName='Dumbach Hall',
+                                        partName='Audio Extractor', classNum='303'),
+                         ProcessorIssue(caseNum='5', diagnosisDate='01/15/2023', buildingName='Cueno Hall',
+                                        partName='VGA Couplers', classNum='210'),
+                         ProcessorIssue(caseNum='6', diagnosisDate='02/03/2023', buildingName='Information Commons',
+                                        partName='Touch Panel', classNum='321')]
     )
 
     Devin = Professor(
@@ -204,7 +236,7 @@ with Session(engine) as session:
         reports=[Report(caseNum='6'), Report(caseNum='9'), Report(caseNum='11')]
     )
 
-    session.add_all([Marquinhos, Raphinha, Cindy, Barbara, Classroom_Tech, Desktop_Services, Devin, Francis])
+    session.add_all([Marquinhos, Raphinha, Cindy, Barbara, Roberto, Classroom_Tech, Desktop_Services, Devin, Francis])
     session.commit()
 
 session = Session(engine)
@@ -220,7 +252,9 @@ for Specialist in session.scalars(specilistSalUnderManager):
 stmt = select(StudentEmp.studentFName, StudentEmp.studentLName, ProcessorIssue.partName, func.count(ProcessorIssue.caseNum))\
     .join(StudentEmp.processorIssues)\
     .join(Professor.reports)\
-    .where(Report.caseNum == ProcessorIssue.caseNum, Professor.professorID == '00001135183')\
+    .join(Department.stuDepts)\
+    .where(Report.caseNum == ProcessorIssue.caseNum, Professor.professorID == '00001135183',
+           StudentWorksIn.studentID == StudentEmp.studentID, Department.departmentName == 'Classroom Tech')\
     .group_by(StudentEmp.studentID, ProcessorIssue.partName)\
     .order_by(func.count(ProcessorIssue.caseNum).desc(), StudentEmp.studentLName)
 
