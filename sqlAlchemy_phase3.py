@@ -261,8 +261,8 @@ specilistSalUnderManager = select(func.count(Specialist.specialistFName)).where(
     Specialist.specialistSalary > 50000)
 
 print("\n" + "### specilistSalUnderManager ###")
-for Specialist in session.scalars(specilistSalUnderManager):
-    print(str(Specialist))
+for spec in session.scalars(specilistSalUnderManager):
+    print(str(spec))
 
 
 # studentDiagnosesByPart
