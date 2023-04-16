@@ -278,3 +278,15 @@ stmt = select(StudentEmp.studentFName, StudentEmp.studentLName, ProcessorIssue.p
 print("\n" + "### studentDiagnosesByPart ###")
 for student in session.execute(stmt):
     print(student)
+
+#ethan
+#Students With touch panel diagnosis, and their department
+tp = select(StudentEmp.studentFName, StudentWorksIn.department_id, ProcessorIssue.diagnosisDate, Department.managerID).join(StudentEmp.processorIssues).where(
+    StudentWorksIn.department_id == Department.departmentName,
+    StudentEmp.studentID == StudentWorksIn.studentID,
+    ProcessorIssue.partName == "Touch Panel"
+)
+
+print("\n" +"### TouchPanelDiagnosisInfo ###")
+for student in session.execute(tp):
+    print(student)
