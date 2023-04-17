@@ -268,10 +268,8 @@ for spec in session.scalars(specilistSalUnderManager):
 # studentDiagnosesByPart
 stmt = select(StudentEmp.studentFName, StudentEmp.studentLName, ProcessorIssue.partName, func.count(ProcessorIssue.caseNum))\
     .join(StudentEmp.processorIssues)\
-    .join(Professor.reports)\
-    .join(Department.stuDepts)\
-    .where(Report.caseNum == ProcessorIssue.caseNum, Report.professor_id == '00001135183',
-           StudentWorksIn.studentID == StudentEmp.studentID, StudentWorksIn.department_id == 'Classroom Tech')\
+    .where(Report.caseNum == ProcessorIssue.caseNum, StudentEmp.studentID == StudentWorksIn.studentID,
+           Report.professor_id == '00001135183', StudentWorksIn.department_id == 'Classroom Tech')\
     .group_by(StudentEmp.studentID, ProcessorIssue.partName)\
     .order_by(func.count(ProcessorIssue.caseNum).desc(), StudentEmp.studentLName)
 
