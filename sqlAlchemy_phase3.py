@@ -192,7 +192,7 @@ with Session(engine) as session:
                          ProcessorIssue(caseNum='8', diagnosisDate='03/19/2023', buildingName='Edward Crown Center',
                                         partName='Audio Extractor', classNum='210'),
                          ProcessorIssue(caseNum='9', diagnosisDate='03/22/2023', buildingName='Cudahy Science Hall',
-                                        partName='HDMI Couplers', classNum='202'),
+                                        partName='VGA Couplers', classNum='202'),
                          ProcessorIssue(caseNum='11', diagnosisDate='04/01/2023', buildingName='Edward Crown Center',
                                         partName='VGA Couplers', classNum='122')]
     )
@@ -265,17 +265,18 @@ for spec in session.scalars(specilistSalUnderManager):
     print(str(spec))
 
 
-# studentDiagnosesByPart
-stmt = select(StudentEmp.studentFName, StudentEmp.studentLName, ProcessorIssue.partName, func.count(ProcessorIssue.caseNum))\
+# professorReportsByPart
+stmt = select(Professor.professorFName, Professor.professorLName, ProcessorIssue.partName, func.count(ProcessorIssue.caseNum))\
     .join(StudentEmp.processorIssues)\
+    .join(Professor.reports)\
     .where(Report.caseNum == ProcessorIssue.caseNum, StudentEmp.studentID == StudentWorksIn.studentID,
-           Report.professor_id == '00001135183', StudentWorksIn.department_id == 'Classroom Tech')\
-    .group_by(StudentEmp.studentID, ProcessorIssue.partName)\
-    .order_by(func.count(ProcessorIssue.caseNum).desc(), StudentEmp.studentLName)
+           StudentWorksIn.department_id == 'Classroom Tech')\
+    .group_by(Professor.professorID, Professor.professorFName, Professor.professorLName, ProcessorIssue.partName)\
+    .order_by(func.count(ProcessorIssue.caseNum).desc(), Professor.professorLName)
 
-print("\n" + "### studentDiagnosesByPart ###")
-for student in session.execute(stmt):
-    print(student)
+print("\n" + "### professorReportsByPart ###")
+for prof in session.execute(stmt):
+    print(prof)
 
 #ethan
 #Students With touch panel diagnosis, and their department
