@@ -253,6 +253,7 @@ with Session(engine) as session:
 
 session = Session(engine)
 
+#Jonathan
 # specilistSalUnderManager    
 specilistSalUnderManager = select(func.count(Specialist.specialistFName)).where(
     Specialist.managerID == Manager.managerID,
@@ -265,7 +266,7 @@ print("\n" + "### specilistSalUnderManager ###")
 for spec in session.scalars(specilistSalUnderManager):
     print(str(spec))
 
-
+#Ryan
 # professorReportsByPart
 stmt = select(Professor.professorFName, Professor.professorLName, ProcessorIssue.partName, func.count(ProcessorIssue.caseNum))\
     .join(StudentEmp.processorIssues)\
