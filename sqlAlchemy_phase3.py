@@ -8,6 +8,7 @@ from sqlalchemy.orm import relationship
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 from sqlalchemy import select
+from sqlalchemy.sql import or_
 from sqlalchemy import func
 
 pwd = input("password: ")
