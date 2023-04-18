@@ -299,6 +299,6 @@ student = select(ProcessorIssue.caseNum, StudentEmp.studentID, StudentEmp.studen
     ProcessorIssue.partName == "VGA Couplers")
 ).order_by(ProcessorIssue.caseNum)
 
-print("\n" +"### StudentsMakingOver5000DiagnosingHDMICouplers ###")
+print("\n" +"### StudentsMakingOver5000DiagnosingCouplers ###")
 for stu in session.execute(student):
     print(stu)
