@@ -289,3 +289,16 @@ tp = select(StudentEmp.studentFName, StudentWorksIn.department_id, ProcessorIssu
 print("\n" +"### TouchPanelDiagnosisInfo ###")
 for student in session.execute(tp):
     print(student)
+    
+#Yehudah David Query
+# Students Getting paid at least 5000 dollars and work in Classroom Tech and diagnosed an issue with HDMI Couplers or VGA Couplers
+
+student = select(ProcessorIssue.caseNum, StudentEmp.studentID, StudentEmp.studentFName, StudentEmp.studentLName, ProcessorIssue.partName).join(StudentEmp.processorIssues).where(
+    StudentEmp.studentSalary >= 5000,
+    or_(ProcessorIssue.partName == "HDMI Couplers", 
+    ProcessorIssue.partName == "VGA Couplers")
+).order_by(ProcessorIssue.caseNum)
+
+print("\n" +"### StudentsMakingOver5000DiagnosingHDMICouplers ###")
+for stu in session.execute(student):
+    print(stu)
